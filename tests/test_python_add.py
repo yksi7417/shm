@@ -1,9 +1,15 @@
 import sys
-from pathlib import Path
+import os
 
-# Add build directory to sys.path to import the compiled module
-build_dir = Path(__file__).resolve().parents[1] / "build" / "src"
-sys.path.insert(0, str(build_dir))
+# PYTHONPATH is set by CTest to point to the built module
+build_dir = os.environ.get("PYTHONPATH")
+if not build_dir:
+    build_dir = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        "build",
+        "src",
+    )
+sys.path.insert(0, build_dir)
 
 import shm_py
 
