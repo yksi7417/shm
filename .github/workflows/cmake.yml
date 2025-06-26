@@ -1,4 +1,4 @@
-name: CMake
+name: CMake + Python Tests
 
 on:
   push:
@@ -9,11 +9,32 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v3
-    - name: Configure
-      run: cmake -S . -B build
-    - name: Build
-      run: cmake --build build
-    - name: Test
-      run: ctest --test-dir build
+      # 1. Check out the code
+      - uses: actions/checkout@v3
+
+      # 2. Install & set up Python (match your CMake find_package version)
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      # 3. Install pytest (and any other Python deps)
+      - name: Install Python test dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          pip install pytest
+
+      # 4. Configure your CMake project
+      - name: Configure
+        run: cmake -S . -B build
+
+      # 5. Build
+      - name: Build
+        run: cmake --build build
+
+      # 6. Run CTest (including your python_add_test)
+      - name: Test
+        working-directory: build
+        run: ctest --output-on-failure
