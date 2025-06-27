@@ -3,6 +3,12 @@ add_library(shm STATIC
     mapped_file.cpp
 )
 
+if(WIN32)
+    target_sources(shm PRIVATE windows_mapped_file.cpp)
+else()
+    target_sources(shm PRIVATE posix_mapped_file.cpp)
+endif()
+
 target_include_directories(shm PUBLIC
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>

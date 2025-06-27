@@ -8,6 +8,10 @@ add_executable(test_mapped_file test_mapped_file.cpp)
 target_link_libraries(test_mapped_file PRIVATE shm)
 add_test(NAME mapped_file_test COMMAND test_mapped_file)
 
+add_executable(test_strategy test_strategy.cpp)
+target_link_libraries(test_strategy PRIVATE shm)
+add_test(NAME strategy_test COMMAND test_strategy)
+
 add_test(
     NAME python_add_test
     COMMAND ${Python3_EXECUTABLE} -m pytest ${CMAKE_SOURCE_DIR}/tests/test_python_add.py
