@@ -5,8 +5,13 @@
 int main() {
     shm::MappedFile mf;
     const char* path = "test_mmap.bin";
-    assert(mf.create(path, 4096));
+    if (!mf.create(path, 4096)) {
+        return 1;
+    }
     char* ptr = static_cast<char*>(mf.data());
+    if (!ptr) {
+        return 1;
+    }
     ptr[0] = 'A';
     mf.close();
 

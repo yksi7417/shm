@@ -2,6 +2,5 @@
 #include "shm/add.h"
 
 int main() {
-    assert(add(2, 3) == 5);
-    return 0;
+    return add(2, 3) == 5 ? 0 : 1;
 }
