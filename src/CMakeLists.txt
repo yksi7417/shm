@@ -1,5 +1,6 @@
 add_library(shm STATIC
     add.cpp
+    mapped_file.cpp
 )
 
 target_include_directories(shm PUBLIC
