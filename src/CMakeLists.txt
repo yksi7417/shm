@@ -19,4 +19,8 @@ add_library(shm_py MODULE
     python_module.cpp
 )
 set_target_properties(shm_py PROPERTIES PREFIX "")
+if(WIN32)
+    # Ensure the Python module has the correct extension on Windows
+    set_target_properties(shm_py PROPERTIES SUFFIX ".pyd")
+endif()
 target_link_libraries(shm_py PRIVATE shm Python3::Python)
