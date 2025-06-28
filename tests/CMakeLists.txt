@@ -17,5 +17,7 @@ add_test(
     COMMAND ${Python3_EXECUTABLE} -m pytest ${CMAKE_SOURCE_DIR}/tests/test_python_add.py
 )
 set_tests_properties(python_add_test PROPERTIES
-    ENVIRONMENT "PYTHONPATH=${CMAKE_BINARY_DIR}/src"
+    # Point PYTHONPATH at the directory of the built Python module. This
+    # automatically handles configuration subdirectories on Windows.
+    ENVIRONMENT "PYTHONPATH=$<TARGET_FILE_DIR:shm_py>"
 )

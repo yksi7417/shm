@@ -31,7 +31,12 @@ jobs:
 
       # 4. Configure your CMake project
       - name: Configure
+        if: matrix.os != 'windows-latest'
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DPython3_EXECUTABLE=${{ env.pythonLocation }}/python
+
+      - name: Configure (Windows)
+        if: matrix.os == 'windows-latest'
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -A x64 -DPython3_EXECUTABLE=${{ env.pythonLocation }}/python
 
       # 5. Build
       - name: Build
