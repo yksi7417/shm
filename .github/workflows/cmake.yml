@@ -31,7 +31,7 @@ jobs:
 
       # 4. Configure your CMake project
       - name: Configure
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DPython3_EXECUTABLE=${{ env.pythonLocation }}/python
 
       # 5. Build
       - name: Build
