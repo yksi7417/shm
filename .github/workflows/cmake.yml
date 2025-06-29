@@ -17,6 +17,12 @@ jobs:
       # 1. Check out the code
       - uses: actions/checkout@v3
 
+      # Set up the Visual Studio environment so tools like `dumpbin` are
+      # available. This is only required on Windows runners.
+      - name: MSVC Environment
+        if: matrix.os == 'windows-latest'
+        uses: ilammy/msvc-dev-cmd@v1
+
       # 2. Install & set up Python (match your CMake find_package version)
       - name: Set up Python 3.12
         uses: actions/setup-python@v4
@@ -53,7 +59,7 @@ jobs:
         shell: cmd
         run: |
           echo Checking DLL dependencies of shm_py.pyd:
-          dumpbin /dependents build_win\src\Release\shm_py.pyd
+          "%VCINSTALLDIR%\bin\Hostx64\x64\dumpbin.exe" /dependents build_win\src\Release\shm_py.pyd
           echo Checking if Visual C++ runtime is available:
           where vcruntime140.dll 2>nul || echo vcruntime140.dll not found in PATH
           where msvcp140.dll 2>nul || echo msvcp140.dll not found in PATH
@@ -67,6 +73,7 @@ jobs:
         working-directory: build_win
         run: |
           echo "Testing manual module import:"
+          set PATH=%CD%\src\Release;%PATH%
           python -c "import sys; sys.path.insert(0, 'src/Release'); print('Attempting to import shm_py...'); import shm_py; print('Success! Module loaded:', shm_py)"
 
       # 8. Run CTest (including your python_add_test)
