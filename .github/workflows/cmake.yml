@@ -27,21 +27,24 @@ jobs:
       - name: Set up Python 3.12
         uses: actions/setup-python@v4
         with:
-          python-version: '3.12'
-
+          python-version: '3.12'      
+      
       # 3. Install pytest (and any other Python deps)
       - name: Install Python test dependencies
         run: |
           python -m pip install --upgrade pip setuptools wheel
-          pip install pytest
-
-      # 4. Configure your CMake project
+          pip install pytest      # 4. Configure your CMake project
       - name: Configure
-        run: cmake -S . -B build_win -DCMAKE_BUILD_TYPE=Release -DPython3_EXECUTABLE=${{ env.pythonLocation }}/python
+        shell: cmd
+        run: |
+          python -c "import sys; print('Python executable:', sys.executable)"
+          cmake -S . -B build_win -DCMAKE_BUILD_TYPE=Release
 
       # 5. Build
       - name: Build
-        run: cmake --build build_win --config Release      # 6. Debug: Check if the Python module was built correctly
+        run: cmake --build build_win --config Release      
+        
+      # 6. Debug: Check if the Python module was built correctly
       - name: Debug - List build output
         if: matrix.os == 'windows-latest'
         shell: cmd
@@ -59,22 +62,25 @@ jobs:
         shell: cmd
         run: |
           echo Checking DLL dependencies of shm_py.pyd:
-          "%VCINSTALLDIR%\bin\Hostx64\x64\dumpbin.exe" /dependents build_win\src\Release\shm_py.pyd
+          dumpbin /dependents build_win\src\Release\shm_py.pyd
           echo Checking if Visual C++ runtime is available:
           where vcruntime140.dll 2>nul || echo vcruntime140.dll not found in PATH
           where msvcp140.dll 2>nul || echo msvcp140.dll not found in PATH
           echo Checking Python DLL:
-          where python312.dll 2>nul || echo python312.dll not found in PATH
-
-      # 7. Debug: Test Python module loading manually
+          where python312.dll 2>nul || echo python312.dll not found in PATH      # 7. Debug: Test Python module loading manually
       - name: Debug - Test module loading
         if: matrix.os == 'windows-latest'
         shell: cmd
         working-directory: build_win
         run: |
           echo "Testing manual module import:"
-          set PATH=%CD%\src\Release;%PATH%
-          python -c "import sys; sys.path.insert(0, 'src/Release'); print('Attempting to import shm_py...'); import shm_py; print('Success! Module loaded:', shm_py)"
+          echo "Current directory:" && cd
+          echo "Python module location:" && dir src\Release\shm_py.pyd
+          echo "Testing with direct path approach:"
+          python -c "import sys; import os; module_path = os.path.abspath(r'src\Release'); print('Module path:', module_path); sys.path.insert(0, module_path); print('Python path:', sys.path[0]); print('Files in module dir:', os.listdir(module_path)); import shm_py; print('Success! Module loaded:', shm_py); print('Testing add function:', shm_py.add(2, 3))" || echo "Direct import failed"
+          echo "Testing with PYTHONPATH:"
+          set PYTHONPATH=%CD%\src\Release
+          python -c "import shm_py; print('PYTHONPATH method worked:', shm_py.add(5, 7))" || echo "PYTHONPATH method failed"
 
       # 8. Run CTest (including your python_add_test)
       - name: Test
