@@ -20,3 +20,8 @@ add_library(shm_py MODULE
 )
 set_target_properties(shm_py PROPERTIES PREFIX "")
 target_link_libraries(shm_py PRIVATE shm Python3::Python)
+
+# On Windows, set the suffix to .pyd for better Python compatibility
+if(WIN32)
+    set_target_properties(shm_py PROPERTIES SUFFIX ".pyd")
+endif()
