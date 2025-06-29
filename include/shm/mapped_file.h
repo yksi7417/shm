@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <memory>
 #include <string>
+#include <unordered_map>
 
 #include "shm/impl/mapped_file_strategy.h"
 #include "shm/impl/mapped_file_selector.h"
@@ -27,6 +28,11 @@ public:
 
 private:
     std::unique_ptr<MappedFileStrategy> impl_;
+    std::string path_;
+    static std::unordered_map<std::string, std::size_t> reader_counts_;
+    static constexpr std::size_t kMoveThreshold = 1024;
+
+    void decrement_reader(std::size_t last_size);
 };
 
 } // namespace shm
