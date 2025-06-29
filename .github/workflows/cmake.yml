@@ -35,15 +35,26 @@ jobs:
           python -m pip install --upgrade pip setuptools wheel
           pip install pytest      # 4. Configure your CMake project
       - name: Configure
-        shell: cmd
+        shell: pwsh
         run: |
-          python -c "import sys; print('Python executable:', sys.executable)"
-          cmake -S . -B build_win -DCMAKE_BUILD_TYPE=Release
-
-      # 5. Build
+          python -c "import sys; print('Python executable:', sys.executable); print('Python version:', sys.version)"
+          $pythonExe = python -c "import sys; print(sys.executable)"
+          Write-Host "Using Python executable: $pythonExe"
+          # Clean any previous build to ensure fresh configuration
+          if (Test-Path build_win) { Remove-Item -Recurse -Force build_win }
+          cmake -S . -B build_win -DCMAKE_BUILD_TYPE=Release -DPython3_EXECUTABLE="$pythonExe"# 5. Build
       - name: Build
-        run: cmake --build build_win --config Release      
-        
+        run: cmake --build build_win --config Release      # 5.1. Debug: Check CMake Python configuration
+      - name: Debug - Check CMake Python Detection
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        working-directory: build_win
+        run: |
+          Write-Host "Checking what Python CMake detected:"
+          Get-Content CMakeCache.txt | Select-String -Pattern "Python3" | Where-Object { $_ -notmatch "^//" }
+          Write-Host "`nPython3 Development component detection:"
+          Get-Content CMakeCache.txt | Select-String -Pattern "Python3.*FOUND" | Where-Object { $_ -notmatch "^//" }
+
       # 6. Debug: Check if the Python module was built correctly
       - name: Debug - List build output
         if: matrix.os == 'windows-latest'
