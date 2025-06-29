@@ -3,6 +3,7 @@ import os
 
 # PYTHONPATH is set by CTest to point to the built module
 build_dir = os.environ.get("PYTHONPATH")
+
 if not build_dir:
     # Try to find the build directory automatically
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -18,8 +19,9 @@ if not build_dir:
     for path in possible_paths:
         if os.path.exists(path):
             # Check if the module file exists in this directory
+            all_files = os.listdir(path)
             module_files = [
-                f for f in os.listdir(path)
+                f for f in all_files
                 if f.startswith('shm_py') and (
                     f.endswith('.so') or
                     f.endswith('.dll') or

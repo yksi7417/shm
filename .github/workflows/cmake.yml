@@ -35,9 +35,26 @@ jobs:
 
       # 5. Build
       - name: Build
-        run: cmake --build build_win --config Release
+        run: cmake --build build_win --config Release      # 6. Debug: Check if the Python module was built correctly
+      - name: Debug - List build output
+        run: |
+          echo "Contents of build_win/src/Release:"
+          dir build_win\src\Release
+          echo "Python version:"
+          python --version
+          echo "Python executable location:"
+          where python
+          echo "Checking Python module dependencies:"
+          python -c "import sys; print('Python path:', sys.path)"
 
-      # 6. Run CTest (including your python_add_test)
+      # 7. Debug: Test Python module loading manually
+      - name: Debug - Test module loading
+        working-directory: build_win
+        run: |
+          echo "Testing manual module import:"
+          python -c "import sys; sys.path.insert(0, 'src/Release'); print('Attempting to import shm_py...'); import shm_py; print('Success! Module loaded:', shm_py)"
+
+      # 8. Run CTest (including your python_add_test)
       - name: Test
         working-directory: build_win
         run: ctest --output-on-failure -C Release
