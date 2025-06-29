@@ -21,23 +21,26 @@ jobs:
       # available. This is only required on Windows runners.
       - name: MSVC Environment
         if: matrix.os == 'windows-latest'
-        uses: ilammy/msvc-dev-cmd@v1
-
-      # 2. Install & set up Python (match your CMake find_package version)
-      - name: Set up Python 3.12
+        uses: ilammy/msvc-dev-cmd@v1      # 2. Install & set up Python (match your CMake find_package version)
+      - name: Set up Python 3.13
         uses: actions/setup-python@v4
         with:
-          python-version: '3.12'
+          python-version: '3.13'
 
       # 3. Install pytest (and any other Python deps)
       - name: Install Python test dependencies
         run: |
           python -m pip install --upgrade pip setuptools wheel
-          pip install pytest
-
-      # 4. Configure your CMake project
+          pip install pytest      # 4. Configure your CMake project
       - name: Configure
-        run: cmake -S . -B build_win -DCMAKE_BUILD_TYPE=Release -DPython3_EXECUTABLE=${{ env.pythonLocation }}/python
+        shell: pwsh
+        run: |
+          python -c "import sys; print('Python executable:', sys.executable); print('Python version:', sys.version)"
+          $pythonExe = python -c "import sys; print(sys.executable)"
+          Write-Host "Using Python executable: $pythonExe"
+          # Clean any previous build to ensure fresh configuration
+          if (Test-Path build_win) { Remove-Item -Recurse -Force build_win }
+          cmake -S . -B build_win -DCMAKE_BUILD_TYPE=Release -DPython3_EXECUTABLE="$pythonExe"
 
       # 5. Build
       - name: Build
@@ -62,9 +65,8 @@ jobs:
           "%VCINSTALLDIR%\bin\Hostx64\x64\dumpbin.exe" /dependents build_win\src\Release\shm_py.pyd
           echo Checking if Visual C++ runtime is available:
           where vcruntime140.dll 2>nul || echo vcruntime140.dll not found in PATH
-          where msvcp140.dll 2>nul || echo msvcp140.dll not found in PATH
-          echo Checking Python DLL:
-          where python312.dll 2>nul || echo python312.dll not found in PATH
+          where msvcp140.dll 2>nul || echo msvcp140.dll not found in PATH          echo Checking Python DLL:
+          where python313.dll 2>nul || echo python313.dll not found in PATH
 
       # 7. Debug: Test Python module loading manually
       - name: Debug - Test module loading
