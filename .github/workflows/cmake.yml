@@ -37,6 +37,8 @@ jobs:
       - name: Build
         run: cmake --build build_win --config Release      # 6. Debug: Check if the Python module was built correctly
       - name: Debug - List build output
+        if: matrix.os == 'windows-latest'
+        shell: cmd
         run: |
           echo "Contents of build_win/src/Release:"
           dir build_win\src\Release
@@ -45,7 +47,18 @@ jobs:
           echo "Python executable location:"
           where python
           echo "Checking Python module dependencies:"
-          python -c "import sys; print('Python path:', sys.path)"
+          python -c "import sys; print('Python path:', sys.path)"      # 6.1. Debug: Check DLL dependencies (Windows only)
+      - name: Debug - Check DLL dependencies
+        if: matrix.os == 'windows-latest'
+        shell: cmd
+        run: |
+          echo Checking DLL dependencies of shm_py.pyd:
+          dumpbin /dependents build_win\src\Release\shm_py.pyd
+          echo Checking if Visual C++ runtime is available:
+          where vcruntime140.dll 2>nul || echo vcruntime140.dll not found in PATH
+          where msvcp140.dll 2>nul || echo msvcp140.dll not found in PATH
+          echo Checking Python DLL:
+          where python312.dll 2>nul || echo python312.dll not found in PATH
 
       # 7. Debug: Test Python module loading manually
       - name: Debug - Test module loading
