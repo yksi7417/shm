@@ -27,6 +27,12 @@ public:
 
 private:
     std::unique_ptr<MappedFileStrategy> impl_;
+    std::string path_;
+    int lock_fd_ = -1;
+    static constexpr std::size_t kMoveThreshold = 1024;
+
+    void register_reader();
+    void decrement_reader(std::size_t last_size);
 };
 
 } // namespace shm
