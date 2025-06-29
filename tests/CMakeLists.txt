@@ -8,6 +8,10 @@ add_executable(test_mapped_file test_mapped_file.cpp)
 target_link_libraries(test_mapped_file PRIVATE shm)
 add_test(NAME mapped_file_test COMMAND test_mapped_file)
 
+add_executable(test_auto_move test_auto_move.cpp)
+target_link_libraries(test_auto_move PRIVATE shm)
+add_test(NAME auto_move_test COMMAND test_auto_move)
+
 add_executable(test_strategy test_strategy.cpp)
 target_link_libraries(test_strategy PRIVATE shm)
 add_test(NAME strategy_test COMMAND test_strategy)
