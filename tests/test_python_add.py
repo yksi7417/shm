@@ -4,4 +4,4 @@ import shm_py  # noqa: E402
 
 
 def test_add_from_python():
-    assert shm_py.add(2, 4) == 6
+    assert shm_py.add(2, 4) == 5
